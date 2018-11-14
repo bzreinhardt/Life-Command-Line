@@ -14,7 +14,6 @@ import boto3, botocore
 
 
 def upload_file_to_s3(file, bucket_name, acl="public-read"):
-    print(file)
     try:
         s3.upload_file(
             file,
@@ -33,14 +32,12 @@ def upload_file_to_s3(file, bucket_name, acl="public-read"):
 
 
 if __name__== '__main__':
-    print("hello")
-    print(sys.argv)
-    file = os.path.abspath(sys.argv[1])
     s3 = boto3.client(
        "s3",
        aws_access_key_id=S3_KEY,
        aws_secret_access_key=S3_SECRET
     )
-
-    url = upload_file_to_s3(file, S3_BUCKET)
-    print(url)
+    for file in sys.argv[1:]:
+        full_file = os.path.abspath(file)
+        url = upload_file_to_s3(full_file, S3_BUCKET)
+        print(url)
