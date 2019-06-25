@@ -17,10 +17,10 @@ import json
 import pdb
 import urllib
 import mechanize 
-import cookielib
+import http.cookiejar
 import sys
 import os
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import webbrowser
 
 #Todo: turn name into query string
@@ -28,11 +28,14 @@ import webbrowser
 # Stick linkedin in name
 
 def find_linkedin(query):
-    if len(query) is 2:
-        query = query[0]+'+'+query[1]
+    if type(query) == type([]):
+        query.append("linkedin")
+        "+".join(query)
+    if type(query) == type("string"):
+        query += "+linkedin"
     query = query.replace(' ','+')
     br = mechanize.Browser()
-    cj = cookielib.LWPCookieJar()
+    cj = http.cookiejar.LWPCookieJar()
     br.set_cookiejar(cj)
     
     # Browser options
@@ -54,15 +57,14 @@ def find_linkedin(query):
     br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
     
     main_url = 'https://www.google.com.tr/search?q='+query
-    print(main_url)
     r = br.open(main_url)
     html = r.read()
     soup = BeautifulSoup(html)
     links = []
     for link in soup.findAll('a'):
         href = link.get('href')
-        if type(href) is unicode:
-            if 'linkedin' in href:
+        if type(href) == type("string"):
+            if 'www.linkedin' in href:
                     links.append(href)
     start = links[0].find('https')
     stop = links[0].find('&')
@@ -76,6 +78,9 @@ def create_one_sided_intro(recipient, subject):
 
 def create_two_sided_intro(first_person, second_person):
     template = '%s\n%s\nI\'ll let you two take it from here.\nBest,\nBen'%(create_one_sided_intro(first_person, second_person), create_one_sided_intro(second_person, first_person))
+    print("Copying to clipboard:")
+    print(template)
+    #todo - need to open linkedin profiles to verify
     return template
 
 

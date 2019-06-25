@@ -17,10 +17,10 @@ import json
 import pdb
 import urllib
 import mechanize
-import cookielib
+import http.cookiejar
 import sys
 import os
-from BeautifulSoup import BeautifulSoup
+from bs4 import  BeautifulSoup
 import webbrowser
 
 #Todo: turn name into query string
@@ -28,11 +28,10 @@ import webbrowser
 # Stick linkedin in name
 
 def find_linkedin(query):
-    if len(query) is 2:
-        query = query[0]+'+'+query[1]
+    query = '+'.join(query)
     query = query.replace(' ','+')
     br = mechanize.Browser()
-    cj = cookielib.LWPCookieJar()
+    cj = http.cookiejar.LWPCookieJar()
     br.set_cookiejar(cj)
 
     # Browser options
@@ -61,7 +60,7 @@ def find_linkedin(query):
     links = []
     for link in soup.findAll('a'):
         href = link.get('href')
-        if type(href) is unicode:
+        if type(href) is str:
             if 'linkedin' in href:
                     links.append(href)
     start = links[0].find('https')
@@ -74,12 +73,12 @@ def find_linkedin(query):
 if __name__ == '__main__':
         #assume people have two names
         names = []
-        for i in range(1, len(sys.argv)):
-            if i%2 is 0:
-                names.append(sys.argv[i-1]+' '+sys.argv[i])
+        for i in range(len(sys.argv), 1):
+            names.append(sys.argv[i])
+        print("Names:")
+        print(names)
         links = []
-        for name in names:
-            links.append(find_linkedin(name))
+        links.append(find_linkedin(' '.join(names)))
         print(links)
         if len(links) > 0:
             pyperclip.copy(str(links[0]))
